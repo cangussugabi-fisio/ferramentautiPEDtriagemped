@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>UTI Pediátrica – Segurança Respiratória + Peso Estimado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!--
+    Foram introduzidas correções baseadas em
+    evidências atuais da literatura pediátrica/neonatal para os limites de taquipneia
+    e para a estimativa automática de FiO₂ em cateter nasal. O cálculo de FiO₂
+    utiliza a relação clássica 21% + 4% por litro de oxigênio fornecido via
+    cateter nasal. Valores de SpO₂/FiO₂ para triagem seguem
+    as equivalências de S/F <200 e <264 como indicativos de hipóxia moderada e
+    limítrofa, conforme estudos com crianças internadas em UTI.
+    Limites de frequência respiratória (FR) adotam cortes de taquipneia baseados
+    em orientações da OMS para respiração rápida em crianças: ≥60 respirações/min
+    para <2 meses, ≥50 para 3–11 meses, ≥40 para 12–60 meses e ≥30 para >60
+    meses.  Para fins de triagem, um limite "alto" é
+    definido como dez respirações acima do limite de alerta.
+  -->
+
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=SqwbRvibx2DJvAmeFFJixPGp6y4V3o1XE0akCTzJt-LA1_JXZRZlAX1IUFiWLshJjFXru5hziQdyVNQH-9LXhpLJJlGNyd2dVZZXrQN7tMjrOzzOkdpBmjfoldMbVgM8uFhmFcafQuLfJYuOrfSlYhkikTD40N_bZL3JCN2vp9NcRyQADYrRZKHVpLe3RW3sl-jm8DxiIyzVmo85iXPBtBAHsYGKMMjlvZFF6YTypUHQW_GbsxSpCJ7OaSBfCW9_" charset="UTF-8"></script><style>
+    :root {
+      --azul-marinho: #0d47a1;
+      --azul-claro: #e3f2fd;
+      --verde-sucesso: #047857;
+      --amarelo-alerta: #d97706;
+      --vermelho-risco: #dc2626;
+      --cinza-fundo: #f5f5f5;
+      --cinza-borda: #d1d5db;
+      --texto-principal: #1f2933;
+      --texto-secundario: #4b5563;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, var(--azul-claro), #ffffff);
+      color: var(--texto-principal);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+      padding: 28px 24px 24px;
+      margin-bottom: 24px;
+    }
+
+    .header {
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--azul-claro);
+      padding-bottom: 16px;
+    }
+
+    .title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--azul-marinho);
+      margin: 0 0 6px 0;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--texto-secundario);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .modulo {
+      margin-top: 24px;
+      padding: 16px;
+      background: #fafbfc;
+      border-radius: 12px;
+      border-left: 4px solid var(--azul-marinho);
+    }
+
+    .modulo-titulo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--azul-marinho);
+      margin: 0 0 14px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modulo-titulo::before {
+      content: "▸";
+      font-size: 1.4rem;
+    }
+
+    .field-group { margin-bottom: 14px; }
+    .field-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--texto-principal);
+    }
+
+    .label-hint {
+      font-size: 0.75rem;
+      color: var(--texto-secundario);
+      font-weight: 400;
+      margin-left: 2px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1.5px solid var(--cinza-borda);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      background: #fff;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--azul-marinho);
+      box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
+      background: #ffffff;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--azul-marinho);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .inline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--texto-secundario);
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      justify-content: center;
+    }
+
+    .btn {
+      flex: 1;
+      max-width: 220px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--azul-marinho);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(13, 71, 161, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(13, 71, 161, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: var(--azul-marinho);
+      border: 1.5px solid var(--cinza-borda);
+    }
+
+    .btn-secondary:hover { background: var(--azul-claro); }
+
+    .resultado {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 12px;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .resultado.sucesso { background: #ecfdf5; border-left: 4px solid var(--verde-sucesso); }
+    .resultado.alerta  { background: #fffbeb; border-left: 4px solid var(--amarelo-alerta); }
+    .resultado.risco   { background: #fef2f2; border-left: 4px solid var(--vermelho-risco); }
+
+    .resultado-titulo {
+      font-weight: 800;
+      font-size: 1.02rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .resultado.sucesso .resultado-titulo { color: var(--verde-sucesso); }
+    .resultado.alerta  .resultado-titulo { color: var(--amarelo-alerta); }
+    .resultado.risco   .resultado-titulo { color: var(--vermelho-risco); }
+
+    .resultado-conteudo { font-size: 0.92rem; line-height: 1.6; }
+
+    .metrica {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(0,0,0,0.08);
+      gap: 10px;
+    }
+    .metrica:last-child { border-bottom: none; }
+
+    .metrica-nome { font-size: 0.9rem; font-weight: 650; color: var(--texto-principal); }
+    .metrica-valor {
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.6);
+      white-space: nowrap;
+    }
+    .valor-positivo { color: var(--verde-sucesso); }
+    .valor-negativo { color: var(--vermelho-risco); }
+    .valor-neutro   { color: var(--amarelo-alerta); }
+
+    .secao-recomendacoes {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(0,0,0,0.1);
+    }
+
+    .recomendacoes-titulo {
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      color: var(--texto-principal);
+    }
+
+    .recomendacoes-lista {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .recomendacoes-lista li { margin-bottom: 6px; }
+
+    .score-box {
+      background: linear-gradient(135deg, var(--azul-marinho), #1e40af);
+      color: #ffffff;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 12px 0;
+    }
+    .score-label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 4px; }
+    .score-valor { font-size: 2rem; font-weight: 800; }
+    .score-percentual { font-size: 0.9rem; margin-top: 4px; opacity: 0.9; }
+
+    details {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--cinza-borda);
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--azul-marinho);
+      list-style: none;
+      user-select: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: "▸ "; display: inline-block; margin-right: 4px; }
+    details[open] summary::before { content: "▾ "; }
+
+    .detalhes-conteudo {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--cinza-borda);
+      color: var(--texto-secundario);
+      line-height: 1.5;
+    }
+
+    .aviso-legal {
+      background: #fef3c7;
+      border-left: 4px solid var(--amarelo-alerta);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: #92400e;
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--cinza-borda);
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--texto-secundario);
+      opacity: 0.65;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px 16px; border-radius: 12px; }
+      .title { font-size: 1.4rem; }
+      .inline-grid { grid-template-columns: 1fr; }
+      .btn-row { flex-direction: column; }
+      .btn { max-width: 100%; }
+    }
+
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      .container { box-shadow: none; border-radius: 0; max-width: 100%; }
+      .btn-row { display: none !important; }
+      details { display: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Triagem Respiratória Pediátrica</h1>
+      <p class="subtitle">
+        Triagem rápida de gravidade (oxigenação + esforço + estado neurológico) e estimativa de peso com Vt sugerido.
+        Ferramenta de apoio à decisão clínica multidisciplinar, não substitui a determinação final do profissional.
+      </p>
+    </header>
+
+    <main>
+      <form id="calcForm">
+        <!-- MÓDULO 1: DADOS BÁSICOS -->
+        <div class="modulo">
+          <h2 class="modulo-titulo">Dados Básicos</h2>
+
+          <div class="inline-grid">
+            <div class="field-group">
+              <label>Faixa etária<span class="label-hint">define limite de FR</span></label>
+              <select id="faixa_etaria">
+                <option value="">Selecione...</option>
+                <option value="neo">Neonato (0–28 dias)</option>
+                <option value="lactente">Lactente (1–12 meses)</option>
+                <option value="crianca_peq">Criança pequena (1–5 anos)</option>
+                <option value="crianca">Criança (6–12 anos)</option>
+                <option value="adolesc">Adolescente (≥ 13 anos)</option>
+              </select>
+              <div class="hint">A FR “de alerta” muda muito por idade.</div>
+            </div>
+
+            <div class="field-group">
+              <label>Frequência respiratória (irpm)</label>
+              <input type="number" id="rr" min="0" max="120" step="1" placeholder="ex.: 52" />
+              <div class="hint">Será comparada com limites por faixa etária.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MÓDULO 2: OXIGENAÇÃO -->
+        <div class="modulo">
+          <h2 class="modulo-titulo">Oxigenação</h2>
+
+          <div class="inline-grid">
+            <div class="field-group">
+              <label>SpO₂ (%)</label>
+              <input type="number" id="spo2" min="0" max="100" step="1" placeholder="ex.: 92" />
+              <div class="hint">Use o valor atual em monitorização.</div>
+            </div>
+
+            <div class="field-group">
+              <label>Dispositivo de O₂</label>
+              <select id="dispositivo" onchange="atualizarCamposDispositivo()">
+                <option value="ar">Ar ambiente (sem oxigênio)</option>
+                <option value="cateter">Cateter nasal (baixo fluxo)</option>
+                <option value="manual">Manual (digitar FiO₂)</option>
+              </select>
+              <div class="hint">Selecione o dispositivo de oxigênio utilizado.</div>
+            </div>
+          </div>
+
+          <div class="inline-grid">
+            <div class="field-group" id="campo_fluxo" style="display:none;">
+              <label>Fluxo de O₂ (L/min)<span class="label-hint">cateter</span></label>
+              <input type="number" id="fluxo" min="0" max="6" step="0.1" placeholder="ex.: 0.8" oninput="atualizarFiO2Calculada()" />
+              <div class="hint">Valores típicos entre 0,1 e 1 L/min em recém-nascidos/infantes. A estimativa usa +4% FiO₂ por L/min【483795729700758†L17-L34】.</div>
+            </div>
+
+            <div class="field-group" id="campo_fio2_manual" style="display:none;">
+              <label>FiO₂ manual (%)</label>
+              <input type="number" id="fio2_manual" min="21" max="100" step="1" placeholder="ex.: 40" oninput="atualizarFiO2Calculada()" />
+              <div class="hint">Insira a FiO₂ medida (VNI/VM ou máscara Venturi).</div>
+            </div>
+
+            <div class="field-group">
+              <label>FiO₂ calculada (%)</label>
+              <input type="number" id="fio2" min="21" max="100" step="0.1" readonly />
+              <div class="hint">Valor calculado automaticamente conforme dispositivo/fluxo.</div>
+            </div>
+          </div>
+
+          <div class="aviso-legal">
+            <strong>Nota prática da coordenação:</strong> a FiO₂ é estimada a partir do dispositivo e do fluxo informado. Para cateter nasal utilizei a regra de 4% a cada litro de O₂. Este cálculo gera a razão SpO₂/FiO₂ para triagem de oxigenação (não substitui analise gasometria/PaO₂/FiO₂).
+          </div>
+        </div>
+
+        <!-- MÓDULO 3: ESFORÇO E NEURO -->
+        <div class="modulo">
+          <h2 class="modulo-titulo">Esforço Ventilatório e Estado Neurológico</h2>
+
+          <div class="checkbox-label">
+            <input type="checkbox" id="acessorios" />
+            <label for="acessorios">Uso de musculatura acessória / retrações / batimento de asa nasal</label>
+          </div>
+
+          <div class="checkbox-label">
+            <input type="checkbox" id="gemencia" />
+            <label for="gemencia">Gemência / “grunting” / tiragem importante</label>
+          </div>
+
+          <div class="field-group" style="margin-top: 10px;">
+            <label>Estado neurológico<span class="label-hint">impacta proteção de via aérea</span></label>
+            <select id="neuro">
+              <option value="">Selecione...</option>
+              <option value="alerta">Alerta/Interagindo</option>
+              <option value="sonolento">Sonolento porém responsivo</option>
+              <option value="letargico">Letárgico / hiporresponsivo</option>
+              <option value="agitado">Agitação importante / confusão</option>
+            </select>
+            <div class="hint">Alteração do estado mental é marcador de gravidade.</div>
+          </div>
+        </div>
+
+        <!-- MÓDULO 4: PESO ESTIMADO + VT -->
+        <div class="modulo">
+          <h2 class="modulo-titulo">Peso Estimado (Pediatria) + Vt Sugerido</h2>
+
+          <div class="field-group">
+            <label>Método de estimativa</label>
+            <select id="metodo_peso" onchange="toggleCamposPeso()">
+              <option value="apls">Idade – fórmula APLS (1 a 12 anos)</option>
+              <option value="infante">Lactente – meses (0 a 12 meses)</option>
+              <option value="real">Usar peso medido (quando disponível)</option>
+            </select>
+            <div class="hint">Objetivo: reduzir erro de Vt por falta de peso real.</div>
+          </div>
+
+          <div class="inline-grid">
+            <div class="field-group" id="campo_idade_anos">
+              <label>Idade (anos)<span class="label-hint">para APLS</span></label>
+              <input type="number" id="idade_anos" min="1" max="12" step="1" placeholder="ex.: 4" />
+              <div class="hint">APLS: Peso(kg) = (idade + 4) × 2</div>
+            </div>
+
+            <div class="field-group" id="campo_idade_meses" style="display:none;">
+              <label>Idade (meses)<span class="label-hint">0 a 12</span></label>
+              <input type="number" id="idade_meses" min="0" max="12" step="1" placeholder="ex.: 8" />
+              <div class="hint">Lactente: Peso(kg) = (meses ÷ 2) + 4</div>
+            </div>
+
+            <div class="field-group" id="campo_peso_real" style="display:none;">
+              <label>Peso medido (kg)</label>
+              <input type="number" id="peso_real" min="0" max="200" step="0.1" placeholder="ex.: 16.5" />
+              <div class="hint">Preferir sempre o peso real se confiável.</div>
+            </div>
+          </div>
+
+          <div class="aviso-legal">
+            <strong>Vt sugerido (faixa):</strong> a ferramenta entrega uma faixa de Vt (mL) baseada em <strong>6–8 mL/kg</strong> para apoiar configuração inicial. Ajuste conforme patologia, complacência, permissividade de CO₂ e estratégia de proteção pulmonar.
+          </div>
+        </div>
+
+        <!-- BOTÕES -->
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" onclick="analisarSeguranca()">Analisar </button>
+          <button type="button" class="btn btn-secondary" onclick="limparFormulario()">Limpar</button>
+        </div>
+      </form>
+
+      <!-- RESULTADO -->
+      <div id="resultado" class="resultado"></div>
+
+      <details>
+        <summary>Como a ferramenta decide “verde / amarelo / vermelho”</summary>
+        <div class="detalhes-conteudo">
+          <strong>1) Oxigenação (SpO₂/FiO₂):</strong><br/>
+          • ≥ 264: mais favorável <br/>
+          • 200–263: alerta <br/>
+          • &lt; 200: risco (hipoxemia moderada ou grave)<br/><br/>
+
+          <strong>2) FR por faixa etária (triagem):</strong><br/>
+          • &lt; 2 meses: alerta ≥ 60 /min <br/>
+          • 3–11 meses: alerta ≥ 50 /min <br/>
+          • 1–5 anos: alerta ≥ 40 /min <br/>
+          • ≥ 5 anos: alerta ≥ 30 /min <br/><br/>
+
+          <strong>3) Esforço / Neuro:</strong><br/>
+          Uso de musculatura acessória, gemência e alteração de consciência somam risco e ajudam a justificar escalonamento (O₂ → VNI/VM). Estes sinais são considerados na pontuação de risco.
+        </div>
+      </details>
+    </main>
+
+    <footer class="footer">
+      Desenvolvido por: Gabriela Canguçu | Coordenação de Fisioterapia | UTI Pediátrica
+    </footer>
+  </div>
+
+  <script>
+    function clamp(num, min, max) {
+      return Math.min(Math.max(num, min), max);
+    }
+
+    // Atualiza exibição dos campos de fluxo e FiO2 manual conforme dispositivo escolhido
+    function atualizarCamposDispositivo() {
+      const disp = document.getElementById("dispositivo").value;
+      const campoFluxo = document.getElementById("campo_fluxo");
+      const campoManual = document.getElementById("campo_fio2_manual");
+      const fio2Input = document.getElementById("fio2");
+      // Mostrar ou ocultar campos
+      campoFluxo.style.display = (disp === "cateter") ? "block" : "none";
+      campoManual.style.display = (disp === "manual") ? "block" : "none";
+      // Atualizar FiO2 baseada no dispositivo
+      atualizarFiO2Calculada();
+    }
+
+    // Calcula a FiO2 estimada em percentagem com base no dispositivo e fluxo ou valor manual
+    function calcularFiO2() {
+      const disp = document.getElementById("dispositivo").value;
+      let fiO2 = 21; // default: ar ambiente
+      if (disp === "cateter") {
+        const fluxo = parseFloat(document.getElementById("fluxo").value);
+        if (!isNaN(fluxo) && fluxo >= 0) {
+          // Regra: cada litro acrescenta 4% de FiO2【483795729700758†L17-L34】
+          fiO2 = 21 + (4 * fluxo);
+        }
+      } else if (disp === "manual") {
+        const manualVal = parseFloat(document.getElementById("fio2_manual").value);
+        if (!isNaN(manualVal) && manualVal >= 21) {
+          fiO2 = manualVal;
+        }
+      }
+      // Limitar entre 21 e 100
+      return clamp(fiO2, 21, 100);
+    }
+
+    // Atualiza o campo FiO2 calculada quando há mudança
+    function atualizarFiO2Calculada() {
+      const fiO2Calc = calcularFiO2();
+      document.getElementById("fio2").value = fiO2Calc.toFixed(1);
+    }
+
+    // Exibir campos corretos ao carregar
+    window.addEventListener('load', atualizarCamposDispositivo);
+
+    // Alterna campos de peso
+    function toggleCamposPeso() {
+      const metodo = document.getElementById("metodo_peso").value;
+      document.getElementById("campo_idade_anos").style.display  = (metodo === "apls") ? "block" : "none";
+      document.getElementById("campo_idade_meses").style.display = (metodo === "infante") ? "block" : "none";
+      document.getElementById("campo_peso_real").style.display   = (metodo === "real") ? "block" : "none";
+    }
+
+    // Limites de frequência respiratória por faixa etária (baseado em critérios OMS de respiração rápida【464813632828353†L104-L115】)
+    function limitesRR(faixa) {
+      switch (faixa) {
+        case "neo": return { alerta: 60, alto: 70 };
+        case "lactente": return { alerta: 50, alto: 60 };
+        case "crianca_peq": return { alerta: 40, alto: 50 };
+        case "crianca": return { alerta: 30, alto: 40 };
+        case "adolesc": return { alerta: 30, alto: 40 };
+        default: return { alerta: 0, alto: 0 };
+      }
+    }
+
+    // Classifica a FR em positivo/neutro/negativo
+    function classificarRR(rr, faixa) {
+      if (!rr || rr <= 0) return { nivel: "neutro", texto: "FR não informada" };
+      const lim = limitesRR(faixa);
+      if (!lim.alerta) return { nivel: "neutro", texto: "Selecione faixa etária" };
+      if (rr >= lim.alto) return { nivel: "negativo", texto: `FR muito elevada (${rr} irpm)` };
+      if (rr >= lim.alerta) return { nivel: "neutro", texto: `FR acima do esperado (${rr} irpm)` };
+      return { nivel: "positivo", texto: `FR aceitável (${rr} irpm)` };
+    }
+
+    // Calcula a razão SpO2/FiO2
+    function calcularSFi(spo2, fio2Percent) {
+      if (!spo2 || !fio2Percent) return null;
+      const fio2 = fio2Percent / 100;
+      if (fio2 <= 0) return null;
+      return (spo2 / fio2);
+    }
+
+    // Classifica a razão SpO2/FiO2
+    function classificarSFi(sfi) {
+      if (sfi === null) return { nivel: "neutro", texto: "SpO₂/FiO₂ não calculado" };
+      if (sfi < 200) return { nivel: "negativo", texto: `SpO₂/FiO₂ &lt; 200 (${Math.round(sfi)})` };
+      if (sfi < 264) return { nivel: "neutro", texto: `SpO₂/FiO₂ 200–263 (${Math.round(sfi)})` };
+      return { nivel: "positivo", texto: `SpO₂/FiO₂ ≥ 264 (${Math.round(sfi)})` };
+    }
+
+    // Estima peso com base no método
+    function estimarPesoKg() {
+      const metodo = document.getElementById("metodo_peso").value;
+      if (metodo === "real") {
+        const p = parseFloat(document.getElementById("peso_real").value);
+        if (!p || p <= 0) return null;
+        return p;
+      }
+      if (metodo === "apls") {
+        const idade = parseFloat(document.getElementById("idade_anos").value);
+        if (!idade || idade <= 0) return null;
+        return (idade + 4) * 2;
+      }
+      if (metodo === "infante") {
+        const meses = parseFloat(document.getElementById("idade_meses").value);
+        if (meses === null || meses === undefined || isNaN(meses)) return null;
+        return (meses / 2) + 4;
+      }
+      return null;
+    }
+
+    // Calcula o Vt sugerido (mL) com base no peso
+    function vtSugerido(pesoKg) {
+      if (!pesoKg || pesoKg <= 0) return null;
+      const vtMin = pesoKg * 6;
+      const vtMax = pesoKg * 8;
+      return { vtMin, vtMax };
+    }
+
+    function analisarSeguranca() {
+      try {
+        const faixa = document.getElementById("faixa_etaria").value;
+        const rr = parseFloat(document.getElementById("rr").value) || 0;
+        const spo2 = parseFloat(document.getElementById("spo2").value) || 0;
+        const fio2 = calcularFiO2(); // utiliza cálculo automático/manual
+        const acessorios = document.getElementById("acessorios").checked;
+        const gemencia = document.getElementById("gemencia").checked;
+        const neuro = document.getElementById("neuro").value;
+
+        // Cálculos principais
+        const sfi = calcularSFi(spo2, fio2);
+        const rrClass = classificarRR(rr, faixa);
+        const sfiClass = classificarSFi(sfi);
+        const peso = estimarPesoKg();
+        const vt = vtSugerido(peso);
+
+        // Pontuação de risco
+        let pontosRisco = 0;
+        const motivosRisco = [];
+        // Oxigenação (maior peso)
+        if (sfi !== null) {
+          if (sfi < 200) { pontosRisco += 3; motivosRisco.push("Hipoxemia relevante (SpO₂/FiO₂ < 200)"); }
+          else if (sfi < 264) { pontosRisco += 2; motivosRisco.push("Oxigenação limítrofe (SpO₂/FiO₂ 200–263)"); }
+        } else {
+          pontosRisco += 1;
+          motivosRisco.push("Oxigenação incompleta (SpO₂/FiO₂ não calculado)");
+        }
+        // Frequência respiratória
+        if (rrClass.nivel === "negativo") { pontosRisco += 2; motivosRisco.push("Taquipneia importante"); }
+        else if (rrClass.nivel === "neutro") { pontosRisco += 1; motivosRisco.push("Taquipneia leve/moderada"); }
+        // Esforço
+        if (acessorios) { pontosRisco += 2; motivosRisco.push("Aumento do trabalho respiratório (acessórios/retrações)"); }
+        if (gemencia) { pontosRisco += 2; motivosRisco.push("Gemência/grunting sugere gravidade"); }
+        // Estado neurológico
+        if (neuro === "letargico") { pontosRisco += 3; motivosRisco.push("Letargia/hiporresponsividade (alto risco)"); }
+        else if (neuro === "agitado") { pontosRisco += 2; motivosRisco.push("Agitação/confusão (risco de falha de suporte/adesão)"); }
+        else if (neuro === "sonolento") { pontosRisco += 1; motivosRisco.push("Sonolência (reavaliar proteção de via aérea)"); }
+
+        // Definição do nível de semáforo
+        let nivel = "sucesso";
+        let icone = "✓";
+        let titulo = "Semáforo VERDE – Criança aparentemente segura (triagem)";
+        let recomendacoes = [];
+
+        if (pontosRisco >= 6) {
+          nivel = "risco";
+          icone = "⛔";
+          titulo = "Semáforo VERMELHO – Instabilidade respiratória provável";
+          recomendacoes = [
+            "Acionar avaliação imediata multiprofissional e definir estratégia de escalonamento.",
+            "Se em ar ambiente ou cateter nasal, iniciar suporte (VNI/VM) conforme peso e tolerância.",
+            "Se em VNI: reavaliar falha e tempo de resposta; considerar intubação/VM se piora clínica.",
+            "Garantir via aérea, monitorização contínua e materiais de suporte avançado disponíveis."
+          ];
+        } else if (pontosRisco >= 3) {
+          nivel = "alerta";
+          icone = "⚠️";
+          titulo = "Semáforo AMARELO – Atenção: risco de deterioração";
+          recomendacoes = [
+            "Reavaliar em curto intervalo (tendência de FR, esforço e SpO₂).",
+            "Otimizar posicionamento, conforto e interface (se em VNI/VM).",
+            "Se oxigenação limítrofe: considerar escalonamento (aumento de suporte ou VNI).",
+            "Se alteração neurológica/agitação: discutir causas e ajustar estratégia de suporte."
+          ];
+        } else {
+          recomendacoes = [
+            "Manter vigilância e registrar tendência (FR, esforço e oxigenação).",
+            "Se houver secreção/atelectasia: planejar intervenção fisioterapêutica direcionada e reavaliar resposta.",
+            "Se em suporte não invasivo, garantir interface adequada e conforto."
+          ];
+        }
+
+        // Monta métricas para exibição
+        const sfiTxt = (sfi === null) ? "—" : `${Math.round(sfi)}`;
+        const pesoTxt = (peso === null) ? "—" : `${peso.toFixed(1)} kg`;
+        const vtTxt = (vt === null) ? "—" : `${Math.round(vt.vtMin)}–${Math.round(vt.vtMax)} mL (6–8 mL/kg)`;
+
+        let html = `<div class="resultado-titulo">${icone} ${titulo}</div>`;
+        html += `<div class="score-box">
+          <div class="score-label">Índice de risco (triagem)</div>
+          <div class="score-valor">${clamp(pontosRisco, 0, 12)}</div>
+          <div class="score-percentual">Quanto maior, maior a urgência de reavaliação/escalonamento</div>
+        </div>`;
+        html += `<div class="resultado-conteudo">`;
+        html += `<div style="margin-bottom: 10px;"><strong>Métricas principais:</strong></div>`;
+        // SpO2/FiO2
+        html += `<div class="metrica">
+          <div class="metrica-nome">SpO₂/FiO₂</div>
+          <div class="metrica-valor ${sfiClass.nivel === "positivo" ? "valor-positivo" : (sfiClass.nivel === "negativo" ? "valor-negativo" : "valor-neutro")}">${sfiTxt}</div>
+        </div>`;
+        html += `<div class="metrica">
+          <div class="metrica-nome">Interpretação da oxigenação</div>
+          <div class="metrica-valor ${sfiClass.nivel === "positivo" ? "valor-positivo" : (sfiClass.nivel === "negativo" ? "valor-negativo" : "valor-neutro")}">${sfiClass.texto}</div>
+        </div>`;
+        // FR
+        html += `<div class="metrica">
+          <div class="metrica-nome">Frequência respiratória</div>
+          <div class="metrica-valor ${rrClass.nivel === "positivo" ? "valor-positivo" : (rrClass.nivel === "negativo" ? "valor-negativo" : "valor-neutro")}">${rr ? rr + " irpm" : "—"}</div>
+        </div>`;
+        html += `<div class="metrica">
+          <div class="metrica-nome">Interpretação da FR</div>
+          <div class="metrica-valor ${rrClass.nivel === "positivo" ? "valor-positivo" : (rrClass.nivel === "negativo" ? "valor-negativo" : "valor-neutro")}">${rrClass.texto}</div>
+        </div>`;
+        // Esforço
+        html += `<div class="metrica">
+          <div class="metrica-nome">Sinais de esforço</div>
+          <div class="metrica-valor ${(acessorios || gemencia) ? "valor-neutro" : "valor-positivo"}">${(acessorios || gemencia) ? "Presentes" : "Ausentes"}</div>
+        </div>`;
+        // Peso e Vt
+        html += `<div class="metrica">
+          <div class="metrica-nome">Peso estimado</div>
+          <div class="metrica-valor ${peso ? "valor-positivo" : "valor-neutro"}">${pesoTxt}</div>
+        </div>`;
+        html += `<div class="metrica">
+          <div class="metrica-nome">Vt sugerido (inicial)</div>
+          <div class="metrica-valor ${vt ? "valor-positivo" : "valor-neutro"}">${vtTxt}</div>
+        </div>`;
+
+        // Motivos de risco
+        if (motivosRisco.length > 0) {
+          html += `<div style="margin-top: 12px;"><strong>Fatores que puxaram risco:</strong></div>`;
+          html += `<ul style="margin: 6px 0 0 18px; padding: 0;">`;
+          motivosRisco.forEach(m => { html += `<li style="margin-bottom: 4px;">${m}</li>`; });
+          html += `</ul>`;
+        }
+
+        // Recomendações
+        html += `<div class="secao-recomendacoes">
+          <div class="recomendacoes-titulo">Recomendações de conduta (apoio):</div>
+          <ul class="recomendacoes-lista">${recomendacoes.map(r => `<li>${r}</li>`).join("")}</ul>
+        </div>`;
+        html += `<div class="aviso-legal" style="margin-top: 14px;">
+          <strong>Aviso:</strong> ferramenta de triagem. Se houver piora clínica, instabilidade hemodinâmica, apneias, cianose central ou alteração importante de consciência, priorize a avaliação imediata e a via aérea.
+        </div>`;
+        html += `</div>`;
+        // Exibir resultado
+        const resultadoDiv = document.getElementById("resultado");
+        resultadoDiv.innerHTML = html;
+        resultadoDiv.className = "resultado " + nivel;
+        resultadoDiv.style.display = "block";
+        setTimeout(() => { resultadoDiv.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 100);
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao processar. Verifique os campos preenchidos.");
+      }
+    }
+
+    function limparFormulario() {
+      document.getElementById("calcForm").reset();
+      toggleCamposPeso();
+      atualizarCamposDispositivo();
+      const r = document.getElementById("resultado");
+      r.style.display = "none";
+      r.innerHTML = "";
+    }
+
+    // Enter para calcular
+    document.getElementById("calcForm").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        analisarSeguranca();
+      }
+    });
+  </script>
+</body>
+</html>
